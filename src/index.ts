@@ -18,13 +18,13 @@ app.get('/', async (req, res) => {
   }
 });
 
-app.post('/add', async (req, res) => {
+app.post('/', async (req, res) => {
   try {
-    console.log(req.body);
-    const response = await db.insert(booksTable).values({
-      title: '2001 - A Space Oddysey',
-      author: 'Arthhus C. Clarke'
-    });
+    if (!req.body.title.length || !req.body.author.length) {
+      return res.status(422).send('Please fill in the required fields');
+    }
+    const { title, author } = req.body;
+    const response = await db.insert(booksTable).values({ title, author });
     res.send(response);
   } catch (error) {
     console.error(error);
