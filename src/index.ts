@@ -1,9 +1,11 @@
 import express from 'express';
+import cors from 'cors';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { booksTable } from './db/schema';
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 const db = drizzle(process.env.DATABASE_URL!);
 
 console.log(process.env.DATABASE_URL);
