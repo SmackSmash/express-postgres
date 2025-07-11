@@ -34,4 +34,20 @@ router.post('/', async (req, res) => {
   }
 });
 
+// @route   PUT /books/:id
+// @desc    Edit book by ID
+// @access  Public
+router.put('/', async (req, res) => {
+  try {
+  } catch (error) {}
+});
+
+// @route   DELETE /books/:id
+// @desc    Delete book by ID
+// @access  Public
+router.delete('/', async (req, res) => {
+  try {
+  } catch (error) {}
+});
+
 export default router;
