@@ -16,7 +16,8 @@ const Book = z.object({
 // @access  Public
 router.get('/', async (_req, res) => {
   try {
-    const books = await db.select().from(booksTable);
+    // Knowing the table exists we can simply fetch it without further checks
+    const books = await db.select().from(booksTable).orderBy(booksTable.id);
     res.send(books);
   } catch (error) {
     console.error(error);
@@ -29,7 +30,9 @@ router.get('/', async (_req, res) => {
 // @access  Public
 router.post('/', async (req, res) => {
   try {
+    // Check request body data is in the correct form
     Book.parse(req.body);
+    // Add data to the db
     const { title, author } = req.body;
     const response = await db.insert(booksTable).values({ title, author });
     res.send(response);
@@ -48,15 +51,31 @@ router.post('/', async (req, res) => {
 // @access  Public
 router.put('/:id', async (req, res) => {
   try {
+    // Check book exists in db
     const [book] = await db
       .select()
       .from(booksTable)
       .where(eq(booksTable.id, Number(req.params.id)));
-    console.log(book);
     if (!book) {
-      res.status(404).send(`No book with id: ${req.params.id}`);
+      res.status(404).send({ error: `No book with id: ${req.params.id}` });
     }
-  } catch (error) {}
+    // Check request body data is in the correct form
+    Book.parse(req.body);
+    // Add data to the db
+    const { title, author } = req.body;
+    const response = await db
+      .update(booksTable)
+      .set({ title, author })
+      .where(eq(booksTable.id, Number(req.params.id)));
+    res.send(response);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).send(error.issues);
+    } else {
+      console.error(error);
+      res.status(500).send('Internal server error');
+    }
+  }
 });
 
 // @route   DELETE /books/:id
@@ -64,7 +83,10 @@ router.put('/:id', async (req, res) => {
 // @access  Public
 router.delete('/:id', async (req, res) => {
   try {
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
 });
 
 export default router;
