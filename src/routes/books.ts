@@ -83,6 +83,18 @@ router.put('/:id', async (req, res) => {
 // @access  Public
 router.delete('/:id', async (req, res) => {
   try {
+    // Check book exists in db
+    const [book] = await db
+      .select()
+      .from(booksTable)
+      .where(eq(booksTable.id, Number(req.params.id)));
+    if (!book) {
+      res.status(404).send({ error: `No book with id: ${req.params.id}` });
+    }
+    const response = await db
+      .delete(booksTable)
+      .where(eq(booksTable.id, Number(req.params.id)));
+    res.send(response);
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal server error');
